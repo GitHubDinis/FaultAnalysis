@@ -4,10 +4,6 @@ import matplotlib.pyplot as plt
 import pickle
 from pandas.tseries.offsets import Minute
 from statsmodels.tsa.stattools import adfuller
-import seaborn as sns
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.stattools import adfuller
-from pandas.tseries.offsets import Day
 
 #Processo de serialização e desserialização dos dados a serem analisados utilizando o pickle
 filename = "C:/Users/Utilizador/Downloads/Material_Projeto/Material_Projeto/dataProcessed"
