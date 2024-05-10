@@ -9,8 +9,10 @@ import pickle
 from pandas.tseries.offsets import Minute
 from statsmodels.tsa.stattools import adfuller
 import seaborn as sns
+from statsmodels.tsa.seasonal import seasonal_decompose
+from statsmodels.tsa.stattools import adfuller
 
-dataLoading = pd.ExcelFile("C:/Users/Utilizador/Downloads/Material_Projeto/Material_Projeto/DadosProjeto/Dados 2019.xlsx") #Carregamento do ficheiro Excel
+dataLoading = pd.ExcelFile("C:/Users/Utilizador/Downloads/Material_Projeto/Material_Projeto/DadosProjeto/Dados 2018.xlsx") #Carregamento do ficheiro Excel
 
 dataCleaned = [] #Variável que contêm uma lista de DataFrames com os dados processados
 
@@ -108,36 +110,60 @@ def processData(dataToClean, columnsNames, indexToUse):
 
 for index in range(len(dataLoading.sheet_names)):
     dataToFormat = pd.read_excel(dataLoading, dataLoading.sheet_names[index], skiprows = [0,1,2,3,4,5])
-    indexToUse = pd.date_range(start = dateRangeAnually2019[index][0], end = dateRangeAnually2019[index][1], freq = "T")
+    indexToUse = pd.date_range(start = dateRangeAnually2018[index][0], end = dateRangeAnually2018[index][1], freq = "T")
     dataCleaned.append(processData(dataToFormat, shortColumns, indexToUse))
     
 data2017 = pd.concat(dataCleaned) #Concatenação dos dados processados num único objeto do tipo DataFrame
 
 data2017_filled = data2017.fillna(-5)
 
-data2017.loc["2019-08", ["VB1","VB2","VB3"]].describe() #Segmentação a nível mensal
+data2017.loc["2018-08", ["VB1","VB2","VB3"]].describe() #Segmentação a nível mensal
 
-data2017.loc["2019", ["VB1","VB2","VB3"]].describe()
+data2017.loc["2018", ["VB1","VB2","VB3"]].describe()
 
-data2017_filled.loc["2019", ["VB1","VB2","VB3"]].describe()
+data2017_filled.loc["2018", ["VB1","VB2","VB3"]].describe()
 
 #Processo de criação de um gráfico com os dados e respetivos labels dos mesmos utilizando o matplotlib
 
 fig, ax = plt.subplots()
-ax.plot(data2017.loc["2019"]["VB1"], color = "blue", label = "VB1 (mm/s)")
-ax.plot(data2017.loc["2019"]["VB2"], color = "orange", label = "VB2 (mm/s)")
-ax.plot(data2017.loc["2019"]["VB3"], color = "green", label = "VB3 (mm/s)")
+ax.plot(data2017.loc["2018"]["VB1"], color = "blue", label = "VB1 (mm/s)")
+ax.plot(data2017.loc["2018"]["VB2"], color = "orange", label = "VB2 (mm/s)")
+ax.plot(data2017.loc["2018"]["VB3"], color = "green", label = "VB3 (mm/s)")
 ax.legend()
-ax.set(title = "Dados 2019 Vibração - Bomba de Aparas", xlabel = "Meses")
+ax.set(title = "Dados 2018 Vibração - Bomba de Aparas", xlabel = "Meses")
 plt.show()
 
 fig, ax = plt.subplots()
-ax.plot(data2017_filled.loc["2019"]["VB1"], color = "blue", label = "VB1 (mm/s)")
-ax.plot(data2017_filled.loc["2019"]["VB2"], color = "orange", label = "VB2 (mm/s)")
-ax.plot(data2017_filled.loc["2019"]["VB3"], color = "green", label = "VB3 (mm/s)")
+ax.plot(data2017_filled.loc["2018"]["VB1"], color = "blue", label = "VB1 (mm/s)", alpha = 0.7)
+ax.plot(data2017_filled.loc["2018"]["VB2"], color = "orange", label = "VB2 (mm/s)", alpha = 0.7)
+ax.plot(data2017_filled.loc["2018"]["VB3"], color = "green", label = "VB3 (mm/s)", alpha = 0.7)
 ax.legend()
-ax.set(title = "Dados 2019 Vibração - Bomba de Aparas", xlabel = "Meses")
+ax.set(title = "Dados 2018 Vibração - Bomba de Aparas", xlabel = "Meses")
 plt.show()
+
+
+fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+axs[0].plot(data2017.loc["2018"]["VB1"], color="blue")
+axs[0].set_ylabel("VCP 1 (mm/s)")
+axs[1].plot(data2017.loc["2018"]["VB2"], color="orange")
+axs[1].set_ylabel("VCP 2 (mm/s)")
+axs[2].plot(data2017.loc["2018"]["VB3"], color="green")
+axs[2].set_ylabel("VCP 3 (mm/s)")
+plt.xlabel("Mounths")
+plt.suptitle("2018 Data - Chip Pump Vibration")
+plt.show()
+
+fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+axs[0].plot(data2017_filled.loc["2018-05"]["VB1"], color="blue")
+axs[0].set_ylabel("VCP 1 (mm/s)")
+axs[1].plot(data2017_filled.loc["2018-05"]["VB2"], color="orange")
+axs[1].set_ylabel("VCP 2 (mm/s)")
+axs[2].plot(data2017_filled.loc["2018-05"]["VB3"], color="green")
+axs[2].set_ylabel("VCP 3 (mm/s)")
+plt.xlabel("Mounths")
+plt.suptitle("2018 Data - Chip Pump Vibration")
+plt.show()
+
 
 cols_with_missing_values = (data2017.loc["2019"].isnull().sum()) #Contagem de valores nulos presentes em cada coluna
 cols_with_missing_values = (data2017.loc["2019"][["VB1", "VB2","VB3"]].isnull().sum()) #Contagem de valores nulos presentes nas colunas VB1, VB2 e VB3
@@ -243,6 +269,17 @@ thirdTimeSeries.isnull().sum()
 
 secondTimeSeries.interpolate(method='linear', inplace=True)
 
+fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+axs[0].plot(secondTimeSeries.loc["2018"]["VB1"], color="blue")
+axs[0].set_ylabel("VCP 1 (mm/s)")
+axs[1].plot(secondTimeSeries.loc["2018"]["VB2"], color="orange")
+axs[1].set_ylabel("VCP 2 (mm/s)")
+axs[2].plot(secondTimeSeries.loc["2018"]["VB3"], color="green")
+axs[2].set_ylabel("VCP 3 (mm/s)")
+plt.xlabel("Mounths")
+plt.suptitle("2018 Data - Chip Pump Vibration")
+plt.show()
+
 def processStatisticsWeekly(data, key):
     #key -> Representa a variável de análise que se quer obter estatísticas
     indexWeekly = pd.date_range(start = "2018-02-04 00:00:00", end = "2018-10-28 00:00:00", freq = "W")
@@ -298,8 +335,99 @@ plt.xticks(np.arange(len(labels)), labels)
 fig.autofmt_xdate()
 plt.show()
 
+labels1 = ["2018-03-04", "2018-03-11", "2018-03-18", "2018-03-25"]
+
+plt.figure(figsize=(10, 6))
+plt.plot(statsVB3.loc['2018-03-04':'2018-04-01']["p-Value"], color="green", label="VB1 (mm/s)")
+plt.title('P-Value Variation (2018-03)')
+plt.xlabel('Date')
+plt.ylabel('p-value')
+plt.grid(True)
+plt.xticks(np.arange(len(labels1)), labels1)
+fig.autofmt_xdate()
+plt.show()
+
+fig, axs = plt.subplots(3, 1, figsize=(10, 8), sharex=True)
+axs[0].plot(statsVB1.loc[:]["p-Value"], color="blue")
+axs[0].set_ylabel("VCP 1 (mm/s)")
+axs[1].plot(statsVB2.loc[:]["p-Value"], color="orange")
+axs[1].set_ylabel("VCP 2 (mm/s)")
+axs[2].plot(statsVB3.loc[:]["p-Value"], color="green")
+axs[2].set_ylabel("VCP 3 (mm/s)")
+plt.xlabel("Weeks", fontsize=10)  # Definindo o tamanho da fonte para o eixo x
+plt.suptitle("Evolution of the p-value over time")
+plt.xticks(np.arange(len(labels)), labels, fontsize=7)  # Definindo o tamanho da fonte para os rótulos do eixo x
+fig.autofmt_xdate()
+plt.show()
+
+
 #Criação de um gráfico de linhas
 plt.figure(figsize = (12,6))
 sns.lineplot(x = secondTimeSeries.index, y = "VB1", data = secondTimeSeries.loc[:, ["VB1"]])
 plt.title("VB1 (mm/s)")
 plt.show()
+
+# Decomposição sazonal
+analiseSerieTemporal2 = seasonal_decompose(secondTimeSeries.loc[:]["VB3"], model="additive", period=100)
+analiseSerieTemporal2.plot()
+plt.xticks(fontsize=8)
+plt.show()
+
+
+def stationarity(data):
+    d = pd.DataFrame(index = ["Fevereiro", "Março", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro"],
+                     columns = ["VB1", "VB2", "VB3"])
+
+    for i in range(3):
+        for j in range(9):
+            d.loc[d.index[j]][d.columns[i]] = adfuller(data.loc["2018-{}".format(j + 2)][d.columns[i]])[1]
+
+    return d
+
+testAdFullerVB1 = adfuller(secondTimeSeries.loc[:]["VB1"])
+testAdFullerVB2 = adfuller(secondTimeSeries.loc[:]["VB2"])
+testAdFullerVB3 = adfuller(secondTimeSeries.loc[:]["VB3"])
+
+print(f'VB1 -> ADF Statistic test: {testAdFullerVB1[0]}')
+print(f'VB1 -> p-value: {round(testAdFullerVB1[1], 3)}\n')
+print(f'VB2 -> ADF Statistic test: {testAdFullerVB2[0]}')
+print(f'VB2 -> p-value: {round(testAdFullerVB2[1], 3)}\n')
+print(f'VB3 -> ADF Statistic test: {testAdFullerVB3[0]}')
+print(f'VB3 -> p-value: {round(testAdFullerVB3[1], 3)}')
+
+testAdFullerMonths = stationarity(secondTimeSeries)
+
+def countZeros(data):
+    list = []
+    variable = 0
+    for i in range(3):
+        count = 0
+        for j in range(len(data)):
+            if (data.iloc[j, variable] == 0):
+                print(data.index[j])
+                count += 1
+        list.append(count)
+        variable += 1
+    return list
+
+#8 de Junho
+print(f'VB1 -> p-value: {round(statsVB1.loc["2018-06-03 00:00:00 :: 2018-06-09 23:59:00"]["p-Value"], 4)}\n')
+print(f'VB1 -> p-value: {round(statsVB1.loc["2018-06-10 00:00:00 :: 2018-06-16 23:59:00"]["p-Value"], 4)}\n')
+print(f'VB1 -> p-value: {round(statsVB1.loc["2018-06-17 00:00:00 :: 2018-06-23 23:59:00"]["p-Value"], 4)}\n')
+
+#17 de Julho
+print(f'VB1 -> p-value: {round(statsVB1.loc["2018-07-15 00:00:00 :: 2018-07-21 23:59:00"]["p-Value"], 4)}\n')
+print(f'VB1 -> p-value: {round(statsVB1.loc["2018-07-22 00:00:00 :: 2018-07-28 23:59:00"]["p-Value"], 4)}\n')
+
+#25 de Setembro
+print(f'VB1 -> p-value: {round(statsVB1.loc["2018-09-23 00:00:00 :: 2018-09-29 23:59:00"]["p-Value"], 7)}\n')
+print(f'VB1 -> p-value: {round(statsVB1.loc["2018-09-30 00:00:00 :: 2018-10-06 23:59:00"]["p-Value"], 5)}\n')
+print(f'VB1 -> p-value: {round(statsVB1.loc["2018-10-07 00:00:00 :: 2018-10-13 23:59:00"]["p-Value"], 4)}\n')
+
+#16 de Maio
+print(f'VB2 -> p-value: {round(statsVB2.loc["2018-05-13 00:00:00 :: 2018-05-19 23:59:00"]["p-Value"], 4)}\n')
+print(f'VB2 -> p-value: {round(statsVB2.loc["2018-05-20 00:00:00 :: 2018-05-26 23:59:00"]["p-Value"], 4)}\n')
+
+#6 de Março
+print(f'VB3 -> p-value: {round(statsVB3.loc["2018-03-04 00:00:00 :: 2018-03-10 23:59:00"]["p-Value"], 4)}\n')
+print(f'VB3 -> p-value: {round(statsVB3.loc["2018-03-11 00:00:00 :: 2018-03-17 23:59:00"]["p-Value"], 4)}\n')
